@@ -1,0 +1,237 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Phoenix UI Components</title>
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/black.css">
+
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+    <link rel="stylesheet" href="presentation.css" />
+
+    <!-- Printing and PDF exports -->
+    <script>
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+        document.getElementsByTagName('head')[0].appendChild(link);
+    </script>
+</head>
+
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <section id="splash">
+                <h1>UI Components</h1>
+                <h2>Clay Houllion & Sean Malone
+			</section>
+			<section id="directives">
+				<section class="title">
+					<h2>Directives</h2>
+            </section>
+            <section>
+                <p>At a high level, directives are markers on a DOM element (such as an attribute, element name, comment or
+                    CSS class) that tell AngularJS's HTML compiler ($compile) to attach a specified behavior to that DOM
+                    element (e.g. via event listeners), or even to transform the DOM element and its children.</p>
+            </section>
+            <section>
+                <h3 style="color: white;">Extension of the View</h3>
+            </section>
+            <section>
+                <h3>When to Use Directives</h3>
+                <ul>
+                    <li>When you need to perform actions in compile and pre-link functions, because they aren't available</li>
+                    <li>When you need advanced directive definition options like priority, terminal, multi-element</li>
+                    <li>When you want a directive that is triggered by an attribute or CSS class, rather than an element</li>
+                </ul>
+            </section>
+            <section>
+                <h3>Registering a Directive</h3>
+                <div>.directive()</div>
+            </section>
+            <section>
+                <pre><code data-trim>
+// Module file
+var MyDirective = require('./my.directive');
+
+angular.module('components', [])
+	.directive('myDirective', MyDirective);
+				</code></pre>
+            </section>
+            <section>
+                <pre><code data-trim>
+// Directive file
+/* @ngInject */
+module.exports = function(params...) {
+    var directive = {
+        restrict: 'A',
+        scope: {
+            prop: '=',
+            string: '@',
+            callback: '&'
+        },
+        template: '<button ng-click="clickButton()">Click Me!</button>',
+        link: link
+    };
+
+    return directive;
+
+    function link(function($scope, $element, $attrs) {
+        var directive = $scope;
+
+        directive.clickButton = clickButton;
+
+        /**
+         * Returns the prop value incremented by one
+         */
+        function clickButton() {
+            directive.callback({ returnProp: prop + 1 });
+        }
+    });
+}
+				</code></pre>
+            </section>
+            </section>
+            <section id="components">
+                <section onerror="" class="title">
+                    <h2>Components</h2>
+                </section>
+                <section>
+                    <p>Angular: a Component is a special kind of directive that uses a simpler configuration which is suitable
+                        for a component-based application structure.</p>
+                    <br/>
+                    <p>General: An encapsulated unit of work comprised of its own markup, styles, and functionality. It provides
+                        interoperability between HTML elements.</p>
+                </section>
+                <section>
+                    <h3>Advantages</h3>
+                    <ul>
+                        <li>Simpler configuration than plain directives</li>
+                        <li>Promotes sane defaults and best practices</li>
+                        <li>Optimized for component-based architecture</li>
+                        <li>Writing component directives will make it easier to upgrade to Angular 2</li>
+                    </ul>
+                </section>
+                <section>
+                    <h3>Component lifecycle hooks</h3>
+                    <p style="font-size: 80%"><strong>$onInit()</strong> - Called on each controller after all the controllers on an element have been
+                        constructed and had their bindings initialized.
+                    </p>
+                    <p style="font-size: 80%"><strong>$onChanges</strong> - Called whenever one-way bindings are updated.</p>
+                    <p style="font-size: 80%"><strong>$doCheck()</strong> - Called on each turn of the digest cycle. Provides an opportunity to detect
+                        and act on changes.
+                    </p>
+                    <p style="font-size: 80%"><strong>$onDestroy()</strong> - Called on a controller when its containing scope is destroyed. Use this
+                        hook for releasing external resources, watches and event handlers.</p>
+                    <p style="font-size: 80%"><strong>$postLink()</strong> - Called after this controller's element and its children have been linked.
+                        Similar to the post-link function this hook can be used to set up DOM event handlers and do direct
+                        DOM manipulation.</p>
+                </section>
+                <section>
+                    <h3>Registering a Component</h3>
+                    <div>.component()</div>
+                </section>
+                <section>
+                    <pre><code data-trim>
+// Module file
+var MyComponent = require('./my.component');
+
+angular.module('components', [])
+	.component('myComponent', MyComponent);
+    				</code></pre>
+                </section>
+                <section>
+                    <pre><code data-trim>
+// Component file
+/* @ngInject */
+module.exports = {
+    bindings: {
+        prop: '<',
+        string: '@',
+        callback: '&'
+    },
+    template: '<button ng-click="$ctrl.clickButton()">Click Me!</button>',
+    controller: function (params...) {
+        var controller = this;
+
+        controller.clickButton = clickButton;
+        controller.$onInit = activate;
+
+        function activate() {
+            console.log('Components are Cool!');
+        }
+
+        /**
+         * Returns the prop value incremented by one
+         */
+        function clickButton() {
+            controller.callback({ returnProp: prop + 1 });
+        }
+    }
+};
+    				</code></pre>
+                </section>
+            </section>
+            <section id="component-based-architecture">
+                <section class="title">
+                    <h2>Component Based Architecture</h2>
+                </section>
+                <section>
+                    <h4>Components only control their own view and data.</h4>
+                    <p>Components should not modify data or DOM outside of it's own scope. This is the reason why the scope
+                        property was removed and only isolated scopes are allowed.</p>
+                </section>
+                <section>
+                    <h4>Components should use the Input/Output pattern</h4>
+                    <p>Components should have a well defined API of inputs and outputs.</p>
+                    <p>Only the component that owns the data should modify it. Components should not modify any objects that
+                        are passed to it. Use one way bindings where possible "
+                        < ".</p>
+                </section>
+                <section>
+                    <h3>Inputs</h3>
+                    <p>Use property bindings (<) and string bindings (@) only. Any modification to a value binding in a component will not be reflected on the higher scope.
+                    Unfortunately, if an object is passed in by reference, the internal scope will still be able to modify the object. If internal state is needed based on an external object,
+                    it is recommended to clone the object inside the component.</p>
+                </section>
+                <section>
+                    <h3>Outputs</h3>
+                    <p>Use expression bindings (=) that attach to callbacks on the higher scope. Inside these callbacks, the calling scope should modify the original data.</p>                </section>
+            </section>
+        </div>
+    </div>
+
+    <script src="lib/js/head.min.js "></script>
+    <script src="js/reveal.js "></script>
+
+    <script>
+        // More info https://github.com/hakimel/reveal.js#configuration
+        Reveal.initialize({
+            controls: false,
+            history: true,
+            // More info https://github.com/hakimel/reveal.js#dependencies
+            dependencies: [{
+                src: 'plugin/markdown/marked.js'
+            }, {
+                src: 'plugin/markdown/markdown.js'
+            }, {
+                src: 'plugin/notes/notes.js',
+                async: true
+            }, {
+                src: 'plugin/highlight/highlight.js',
+                async: true,
+                callback: function() {
+                    hljs.initHighlightingOnLoad();
+                }
+            }]
+        });
+    </script>
+</body>
+
+</html>
